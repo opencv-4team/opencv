@@ -3,6 +3,8 @@ import socket
 import threading
 import cv2
 import numpy
+
+
 PORT = 9000
 
 
@@ -21,16 +23,19 @@ def handle_clnt(clnt_sock):
     while True:
         sys.stdout.flush()
         clnt_msg = clnt_sock.recv(1024)
-        print(clnt_msg.decode())
-        if("idcheck" in clnt_msg.decode()):
+        clnt_msg = clnt_msg.decode()
+        print(clnt_msg)
+        if("idcheck" in clnt_msg):
             sock.send("OK".encode())
-        elif("check" == clnt_msg.decode()):
+        elif(clnt_msg.startswith('login/')):
+            sock.send("PASS".encode())
+        elif("check" == clnt_msg):
             length = recvall(clnt_sock,6) 
-            print(length)
             stringData = recvall(clnt_sock, int(length))
             data = numpy.fromstring(stringData, dtype='uint8')
             decimg=cv2.imdecode(data,1)
             cv2.imshow('SERVER',decimg)
+            clnt_sock.send("OK".encode())
             cv2.waitKey(0)
             cv2.destroyAllWindows() 
 
